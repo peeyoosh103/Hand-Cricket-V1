@@ -1,0 +1,6 @@
+{
+  "name": "Hand Cricket",
+  "description": "An authentic cricket hand game featuring Quick Match, World Cup tournament, format-specific wicket limits, Super Overs, realistic CPU AI, and career statistics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

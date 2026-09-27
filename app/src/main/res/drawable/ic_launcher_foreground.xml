@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Golden glow ring -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#F59E0B"
+        android:strokeWidth="2.5"
+        android:pathData="M54,54 m-30,0 a30,30 0 1,0 60,0 a30,30 0 1,0 -60,0" />
+
+    <!-- Cricket Bat Blade & Handle (Diagonal) -->
+    <path
+        android:fillColor="#E2E8F0"
+        android:strokeColor="#F8FAFC"
+        android:strokeWidth="1"
+        android:pathData="M38,72 L68,42 L73,47 L43,77 Z" />
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M68,42 L77,33 L80,36 L71,45 Z" />
+
+    <!-- Raised Hand / Number Gesture (Center silhouette in gold/white) -->
+    <!-- Palm and Fingers (Gesture for Hand Cricket) -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M48,58 L48,46 C48,44 51,44 51,46 L51,55 L53,55 L53,42 C53,40 56,40 56,42 L56,55 L58,55 L58,45 C58,43 61,43 61,45 L61,56 L63,56 L63,49 C63,47 66,47 66,49 L66,61 C66,67 61,72 55,72 C49,72 45,67 45,61 L45,58 Z" />
+
+    <!-- Cricket Ball with white seam -->
+    <path
+        android:fillColor="#EF4444"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.2"
+        android:pathData="M36,44 m-9,0 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0" />
+    <!-- Ball Seam stitch -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FEF08A"
+        android:strokeWidth="1.2"
+        android:pathData="M27,44 Q36,38 45,44" />
+
+    <!-- Star decoration for tournament victory -->
+    <path
+        android:fillColor="#FDE047"
+        android:pathData="M54,23 L55.5,27.5 L60,27.5 L56.5,30 L58,34.5 L54,32 L50,34.5 L51.5,30 L48,27.5 L52.5,27.5 Z" />
+</vector>
