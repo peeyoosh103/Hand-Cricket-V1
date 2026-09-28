@@ -85,6 +85,8 @@ fun HandCricketApp(viewModel: GameViewModel) {
             is Screen.WorldCupPointsTable -> PointsTableScreen(viewModel = viewModel)
             is Screen.WorldCupKnockout -> KnockoutScreen(viewModel = viewModel)
             is Screen.WorldCupTournamentStats -> TournamentStatsScreen(viewModel = viewModel)
+            is Screen.WorldCupResults -> ResultsScreen(viewModel = viewModel)
+            is Screen.WorldCupTeams -> TeamsScreen(viewModel = viewModel)
             is Screen.WorldCupChampion -> ChampionScreen(viewModel = viewModel)
             is Screen.Practice -> PracticeScreen(viewModel = viewModel)
             is Screen.Statistics -> StatisticsScreen(viewModel = viewModel)

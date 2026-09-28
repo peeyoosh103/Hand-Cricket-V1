@@ -483,6 +483,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
+    fun checkAndAutoProgressTournament() {
+        gameRepository.autoProgressTournament()
+    }
+
     fun resetPracticeScore() {
         playSound(SoundType.BUTTON_CLICK)
         _practiceState.value = _practiceState.value.copy(

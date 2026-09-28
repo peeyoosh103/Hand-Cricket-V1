@@ -14,6 +14,8 @@ sealed class Screen {
     data object WorldCupPointsTable : Screen()
     data object WorldCupKnockout : Screen()
     data object WorldCupTournamentStats : Screen()
+    data object WorldCupResults : Screen()
+    data object WorldCupTeams : Screen()
     data object WorldCupChampion : Screen()
     
     data class Gameplay(

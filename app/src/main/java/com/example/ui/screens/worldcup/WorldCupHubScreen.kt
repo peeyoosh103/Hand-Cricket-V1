@@ -53,6 +53,10 @@ fun WorldCupHubScreen(
     val userStanding = tournament.pointsTable.indexOfFirst { it.teamId == userTeam.id } + 1
     val nextFixture = tournament.nextUserFixture
 
+    LaunchedEffect(Unit) {
+        viewModel.checkAndAutoProgressTournament()
+    }
+
     StadiumBackground {
         Scaffold(
             topBar = {
@@ -287,8 +291,14 @@ fun WorldCupHubScreen(
 
                             Button(
                                 onClick = {
+                                    val matchType = when (nextFixture.stage) {
+                                        TournamentStage.LEAGUE -> MatchType.WORLD_CUP_LEAGUE
+                                        TournamentStage.SEMI_FINALS -> MatchType.WORLD_CUP_SEMI_FINAL
+                                        TournamentStage.FINAL -> MatchType.WORLD_CUP_FINAL
+                                        else -> MatchType.WORLD_CUP_LEAGUE
+                                    }
                                     viewModel.startMatch(
-                                        matchType = MatchType.WORLD_CUP_LEAGUE,
+                                        matchType = matchType,
                                         fixtureId = nextFixture.id,
                                         playerTeam = userTeam,
                                         opponentTeam = opponent,
@@ -378,7 +388,7 @@ fun WorldCupHubScreen(
                             onClick = { viewModel.navigateTo(Screen.WorldCupFixtures) }
                         )
 
-                        // 2. Points Table
+                        // 2. Points Table / Leaderboard
                         WcHubCard(
                             title = "Points Table",
                             subtitle = "Standings & NRR",
@@ -403,7 +413,32 @@ fun WorldCupHubScreen(
                             onClick = { viewModel.navigateTo(Screen.WorldCupKnockout) }
                         )
 
-                        // 4. Tournament Stats
+                        // 4. Results
+                        WcHubCard(
+                            title = "Results",
+                            subtitle = "Completed Match Cards",
+                            icon = "📜",
+                            modifier = Modifier.weight(1f),
+                            testTag = "wc_results_card",
+                            onClick = { viewModel.navigateTo(Screen.WorldCupResults) }
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // 5. Teams
+                        WcHubCard(
+                            title = "Teams",
+                            subtitle = "10 Nations Profile",
+                            icon = "🌍",
+                            modifier = Modifier.weight(1f),
+                            testTag = "wc_teams_card",
+                            onClick = { viewModel.navigateTo(Screen.WorldCupTeams) }
+                        )
+
+                        // 6. Tournament Stats
                         WcHubCard(
                             title = "Tournament Stats",
                             subtitle = "Runs, Wickets & Records",

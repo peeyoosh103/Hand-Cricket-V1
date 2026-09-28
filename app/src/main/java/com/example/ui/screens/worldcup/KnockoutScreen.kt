@@ -10,9 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +39,10 @@ fun KnockoutScreen(
     val sf2 = tournament.fixtures.firstOrNull { it.id == tournament.semiFinal2FixtureId }
     val finalFixture = tournament.fixtures.firstOrNull { it.id == tournament.finalFixtureId }
     val userTeamId = tournament.userTeamId
+
+    LaunchedEffect(Unit) {
+        viewModel.checkAndAutoProgressTournament()
+    }
 
     StadiumBackground {
         Scaffold(
