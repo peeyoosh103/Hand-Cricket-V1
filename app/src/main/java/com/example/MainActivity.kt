@@ -2,6 +2,7 @@ package com.example
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
@@ -23,6 +24,7 @@ import com.example.ui.screens.match.MatchResultScreen
 import com.example.ui.screens.match.QuickMatchSetupScreen
 import com.example.ui.screens.match.ScorecardScreen
 import com.example.ui.screens.practice.PracticeScreen
+import com.example.ui.screens.rules.GameRulesScreen
 import com.example.ui.screens.settings.SettingsScreen
 import com.example.ui.screens.stats.StatisticsScreen
 import com.example.ui.screens.worldcup.*
@@ -53,6 +55,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun HandCricketApp(viewModel: GameViewModel) {
     val currentScreen by viewModel.currentScreen.collectAsState()
+
+    // Android System Back Navigation (Gestures / System Back Button)
+    // Synchronized with internal navigation stack.
+    // When on HomeScreen, enabled is false allowing standard Android OS exit/minimize behavior.
+    BackHandler(enabled = currentScreen !is Screen.Home) {
+        viewModel.navigateBack()
+    }
 
     AnimatedContent(
         targetState = currentScreen,
@@ -92,6 +101,7 @@ fun HandCricketApp(viewModel: GameViewModel) {
             is Screen.Statistics -> StatisticsScreen(viewModel = viewModel)
             is Screen.MatchHistory -> MatchHistoryScreen(viewModel = viewModel)
             is Screen.Settings -> SettingsScreen(viewModel = viewModel)
+            is Screen.GameRules -> GameRulesScreen(viewModel = viewModel)
         }
     }
 }

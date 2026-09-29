@@ -248,7 +248,7 @@ fun HomeScreen(
                 }
             }
 
-            // Main Menu Buttons (5 Core Game Modes)
+            // Main Menu Buttons (Core Game Modes)
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -286,18 +286,7 @@ fun HomeScreen(
                     }
                 )
 
-                // 3. Practice Mode
-                HomeMenuCard(
-                    title = "PRACTICE",
-                    subtitle = "Master batting & bowling number skills with unlimited attempts",
-                    icon = "🎯",
-                    gradient = listOf(Color(0xFF4338CA), CricketRoyalBlue),
-                    accentColor = Color(0xFF93C5FD),
-                    testTag = "home_practice_button",
-                    onClick = { viewModel.navigateTo(Screen.Practice) }
-                )
-
-                // 4. Statistics
+                // 3. Statistics
                 HomeMenuCard(
                     title = "STATISTICS",
                     subtitle = "Career win rates, run aggregates, boundaries & bowling records",
@@ -308,7 +297,7 @@ fun HomeScreen(
                     onClick = { viewModel.navigateTo(Screen.Statistics) }
                 )
 
-                // 5. Match History
+                // 4. Match History
                 HomeMenuCard(
                     title = "MATCH HISTORY",
                     subtitle = "Review past scorecards, run chases & results",
@@ -317,6 +306,18 @@ fun HomeScreen(
                     accentColor = Color(0xFFCBD5E1),
                     testTag = "home_match_history_button",
                     onClick = { viewModel.navigateTo(Screen.MatchHistory) }
+                )
+
+                // 5. Game Rules (Official Batting & Bowling Rules with Voice Guide)
+                HomeMenuCard(
+                    title = "GAME RULES",
+                    subtitle = "Batting & bowling rules with Hindi voice narration",
+                    icon = "📖",
+                    gradient = listOf(Color(0xFF0F766E), Color(0xFF14B8A6)),
+                    accentColor = Color(0xFF5EEAD4),
+                    badgeText = "VOICE GUIDE",
+                    testTag = "home_game_rules_button",
+                    onClick = { viewModel.navigateTo(Screen.GameRules) }
                 )
             }
 

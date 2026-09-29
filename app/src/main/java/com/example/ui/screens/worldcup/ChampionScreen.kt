@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
@@ -72,6 +73,18 @@ fun ChampionScreen(
                                 color = CricketGold
                             )
                         )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = { viewModel.navigateTo(Screen.WorldCupHub) },
+                            modifier = Modifier.testTag("champion_back_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back to World Cup Hub",
+                                tint = TextPrimary
+                            )
+                        }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
                 )

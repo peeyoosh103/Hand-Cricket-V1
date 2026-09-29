@@ -39,4 +39,5 @@ sealed class Screen {
     data object Statistics : Screen()
     data object MatchHistory : Screen()
     data object Settings : Screen()
+    data object GameRules : Screen()
 }

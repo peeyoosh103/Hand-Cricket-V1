@@ -54,7 +54,7 @@ enum class CommentarySpeed(val label: String, val speedMultiplier: Float) {
 }
 
 data class GameSettings(
-    val difficulty: Difficulty = Difficulty.MEDIUM,
+    val difficulty: Difficulty = Difficulty.HARD,
     val defaultOvers: Int = 5,
     val soundEffectsEnabled: Boolean = true,
     val vibrationEnabled: Boolean = true,
@@ -62,7 +62,7 @@ data class GameSettings(
     val highAnimationIntensity: Boolean = true,
     val commentaryEnabled: Boolean = true,
     val commentaryVoiceEnabled: Boolean = true,
-    val commentarySpeed: CommentarySpeed = CommentarySpeed.NORMAL,
+    val commentarySpeed: CommentarySpeed = CommentarySpeed.SLOW,
     val commentaryVolumePercent: Int = 100
 ) {
     val defaultFormat: MatchFormat

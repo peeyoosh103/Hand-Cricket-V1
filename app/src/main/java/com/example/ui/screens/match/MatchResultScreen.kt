@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Scoreboard
@@ -63,6 +64,24 @@ fun MatchResultScreen(
                                 color = CricketGold
                             )
                         )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
+                                if (fromTournament) {
+                                    viewModel.navigateTo(Screen.WorldCupHub)
+                                } else {
+                                    viewModel.navigateToHome()
+                                }
+                            },
+                            modifier = Modifier.testTag("result_back_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = TextPrimary
+                            )
+                        }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
                 )

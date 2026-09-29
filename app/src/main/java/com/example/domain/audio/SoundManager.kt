@@ -41,7 +41,7 @@ class SoundManager(private val context: Context) {
             try {
                 when (type) {
                     SoundType.BUTTON_CLICK -> {
-                        toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 35)
+                        // Generic UI button click beep sound disabled/removed completely
                     }
                     SoundType.BAT_HIT -> {
                         toneGenerator?.startTone(ToneGenerator.TONE_PROP_ACK, 70)
