@@ -40,6 +40,7 @@ data class Team(
 ) {
     val primaryColor: Color get() = Color(primaryColorHex)
     val secondaryColor: Color get() = Color(secondaryColorHex)
+    val fullName: String get() = name
 
     companion object {
         val ALL_TEAMS = listOf(

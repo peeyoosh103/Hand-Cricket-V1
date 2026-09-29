@@ -47,13 +47,23 @@ data class TournamentStats(
     val lowestTeamScore: Pair<String, Int>? = null
 )
 
+enum class CommentarySpeed(val label: String, val speedMultiplier: Float) {
+    SLOW("Slow (धीमी)", 0.85f),
+    NORMAL("Normal (सामान्य)", 1.0f),
+    FAST("Fast (तेज़)", 1.2f)
+}
+
 data class GameSettings(
     val difficulty: Difficulty = Difficulty.MEDIUM,
     val defaultOvers: Int = 5,
     val soundEffectsEnabled: Boolean = true,
     val vibrationEnabled: Boolean = true,
     val isDarkTheme: Boolean = true,
-    val highAnimationIntensity: Boolean = true
+    val highAnimationIntensity: Boolean = true,
+    val commentaryEnabled: Boolean = true,
+    val commentaryVoiceEnabled: Boolean = true,
+    val commentarySpeed: CommentarySpeed = CommentarySpeed.NORMAL,
+    val commentaryVolumePercent: Int = 100
 ) {
     val defaultFormat: MatchFormat
         get() = MatchFormat.fromOvers(defaultOvers)

@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.model.CommentarySpeed
 import com.example.data.model.Difficulty
 import com.example.data.model.MatchFormat
 import com.example.ui.components.ConfirmationDialog
@@ -227,7 +228,138 @@ fun SettingsScreen(
                     }
                 }
 
-                // Section 3: Data Management & Resets
+                // Section 3: Hindi Cricket Commentary
+                Text(
+                    text = "🎙️ HINDI COMMENTARY (हिंदी कमेंट्री)",
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = CricketGold,
+                        letterSpacing = 0.5.sp
+                    )
+                )
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = StadiumCardNavy)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // Hindi Commentary Master Switch
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Live Hindi Commentary",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = TextPrimary
+                                    )
+                                )
+                                Text(
+                                    text = "Dynamic ball-by-ball Hindi commentary (Rahul & Neha)",
+                                    style = MaterialTheme.typography.bodySmall.copy(color = TextSecondary)
+                                )
+                            }
+
+                            Switch(
+                                checked = settings.commentaryEnabled,
+                                onCheckedChange = { isChecked ->
+                                    viewModel.updateSettings(settings.copy(commentaryEnabled = isChecked))
+                                },
+                                modifier = Modifier.testTag("commentary_master_switch"),
+                                colors = SwitchDefaults.colors(checkedThumbColor = CricketPitchGreen)
+                            )
+                        }
+
+                        if (settings.commentaryEnabled) {
+                            HorizontalDivider(color = StadiumCardBorder, thickness = 1.dp)
+
+                            // Commentary Voice (TTS) Audio Switch
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Commentary Voice (ऑडियो आवाज़)",
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            color = TextPrimary
+                                        )
+                                    )
+                                    Text(
+                                        text = "Speaks commentary with male & female Hindi voices",
+                                        style = MaterialTheme.typography.bodySmall.copy(color = TextSecondary)
+                                    )
+                                }
+
+                                Switch(
+                                    checked = settings.commentaryVoiceEnabled,
+                                    onCheckedChange = { isChecked ->
+                                        viewModel.updateSettings(settings.copy(commentaryVoiceEnabled = isChecked))
+                                    },
+                                    modifier = Modifier.testTag("commentary_voice_switch"),
+                                    colors = SwitchDefaults.colors(checkedThumbColor = CricketPitchGreen)
+                                )
+                            }
+
+                            HorizontalDivider(color = StadiumCardBorder, thickness = 1.dp)
+
+                            // Commentary Speed
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text(
+                                    text = "Commentary Speed (बोलने की गति)",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = TextPrimary
+                                    )
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    CommentarySpeed.entries.forEach { speed ->
+                                        val isSelected = (settings.commentarySpeed == speed)
+                                        FilterChip(
+                                            selected = isSelected,
+                                            onClick = {
+                                                viewModel.updateSettings(settings.copy(commentarySpeed = speed))
+                                            },
+                                            label = {
+                                                Text(
+                                                    text = speed.label,
+                                                    style = MaterialTheme.typography.labelSmall.copy(
+                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                        color = if (isSelected) CricketPitchLightGreen else TextSecondary
+                                                    )
+                                                )
+                                            },
+                                            modifier = Modifier.weight(1f),
+                                            colors = FilterChipDefaults.filterChipColors(
+                                                selectedContainerColor = StadiumCardBorder.copy(alpha = 0.5f),
+                                                containerColor = ScoreboardBg
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Section 4: Data Management & Resets
                 Text(
                     text = "🗑️ DATA MANAGEMENT",
                     style = MaterialTheme.typography.labelLarge.copy(

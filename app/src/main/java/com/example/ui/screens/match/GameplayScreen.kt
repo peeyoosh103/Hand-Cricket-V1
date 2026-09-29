@@ -12,6 +12,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.VolumeOff
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,6 +46,7 @@ fun GameplayScreen(
     viewModel: GameViewModel
 ) {
     val activeMatch by viewModel.activeMatch.collectAsState()
+    val settings by viewModel.settings.collectAsState()
     var showQuitDialog by remember { mutableStateOf(false) }
 
     // Intercept back button to show quit confirmation
@@ -79,6 +82,19 @@ fun GameplayScreen(
                         }
                     },
                     actions = {
+                        // Quick Voice Toggle Button
+                        IconButton(
+                            onClick = {
+                                viewModel.setCommentaryVoiceEnabled(!settings.commentaryVoiceEnabled)
+                            },
+                            modifier = Modifier.testTag("gameplay_voice_toggle")
+                        ) {
+                            Icon(
+                                imageVector = if (settings.commentaryVoiceEnabled) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
+                                contentDescription = if (settings.commentaryVoiceEnabled) "Mute Voice" else "Unmute Voice",
+                                tint = if (settings.commentaryVoiceEnabled) CricketPitchLightGreen else TextSecondary
+                            )
+                        }
                         IconButton(
                             onClick = { showQuitDialog = true },
                             modifier = Modifier.testTag("gameplay_pause_button")

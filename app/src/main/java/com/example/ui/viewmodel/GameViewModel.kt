@@ -8,6 +8,8 @@ import com.example.data.model.*
 import com.example.data.repository.GameRepository
 import com.example.domain.audio.SoundManager
 import com.example.domain.audio.SoundType
+import com.example.domain.commentary.CommentaryOutput
+import com.example.domain.commentary.HindiCommentaryEngine
 import com.example.domain.engine.CpuAiEngine
 import com.example.domain.engine.HandCricketEngine
 import com.example.ui.navigation.Screen
@@ -79,6 +81,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val handCricketEngine = HandCricketEngine()
     private val cpuAiEngine = CpuAiEngine()
     private val soundManager = SoundManager(application)
+    val commentaryEngine = HindiCommentaryEngine(application)
 
     // Navigation Stack
     private val _navStack = MutableStateFlow<List<Screen>>(listOf(Screen.Home))
@@ -89,6 +92,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     val careerStats: StateFlow<PlayerCareerStats> = gameRepository.careerStats
     val matchHistory: StateFlow<List<MatchResult>> = gameRepository.matchHistory
     val settings: StateFlow<GameSettings> = gameRepository.settings
+
+    // Commentary State
+    val currentCommentary: StateFlow<CommentaryOutput?> = commentaryEngine.currentCommentary
+    val commentaryHistory: StateFlow<List<CommentaryOutput>> = commentaryEngine.commentaryHistory
 
     // Active Gameplay State
     private val _activeMatch = MutableStateFlow<ActiveMatchState?>(null)
@@ -103,6 +110,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _navStack.collect { stack ->
                 (currentScreen as MutableStateFlow).value = stack.lastOrNull() ?: Screen.Home
+            }
+        }
+
+        // Apply settings changes to commentary engine
+        viewModelScope.launch {
+            settings.collect { currentSettings ->
+                commentaryEngine.applySettings(currentSettings)
             }
         }
     }
@@ -142,6 +156,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         format: MatchFormat
     ) {
         cpuAiEngine.resetHistory()
+        commentaryEngine.resetMatchSession()
+        commentaryEngine.onMatchStart(playerTeam, opponentTeam, format, matchType)
         val matchId = fixtureId ?: "MATCH_${System.currentTimeMillis()}"
 
         _activeMatch.value = ActiveMatchState(
@@ -191,6 +207,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val playerTeam = current.playerTeam
         val opponentTeam = current.opponentTeam
         val format = current.format
+
+        commentaryEngine.onToss(winner, choice, playerTeam, opponentTeam)
 
         val battingFirst = if (winner.id == playerTeam.id) {
             if (choice == TossChoice.BAT) playerTeam else opponentTeam
@@ -245,7 +263,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             else -> playSound(SoundType.BAT_HIT)
         }
 
-        // Apply updated innings to state
+        // Apply updated innings to state FIRST so score is updated immediately
         val updatedMatch = when (current.stage) {
             MatchStage.INNINGS_1 -> current.copy(
                 innings1 = updatedInnings,
@@ -279,6 +297,54 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         _activeMatch.value = updatedMatch
+
+        // Live Hindi Commentary generated from the SAME finalized result
+        val isMatchFinishingBall = updatedInnings.isCompleted &&
+            (current.stage == MatchStage.INNINGS_2 || current.stage == MatchStage.SUPER_OVER_INNINGS_2)
+
+        if (isMatchFinishingBall) {
+            val innings1 = current.innings1 ?: updatedInnings
+            val result = if (current.stage == MatchStage.SUPER_OVER_INNINGS_2) {
+                handCricketEngine.determineMatchResult(
+                    matchId = current.matchId,
+                    matchType = current.matchType,
+                    format = current.format,
+                    team1 = current.playerTeam,
+                    team2 = current.opponentTeam,
+                    innings1 = innings1,
+                    innings2 = current.innings2 ?: updatedInnings,
+                    superOver1 = current.superOverInnings1,
+                    superOver2 = updatedInnings
+                )
+            } else {
+                handCricketEngine.determineMatchResult(
+                    matchId = current.matchId,
+                    matchType = current.matchType,
+                    format = current.format,
+                    team1 = current.playerTeam,
+                    team2 = current.opponentTeam,
+                    innings1 = innings1,
+                    innings2 = updatedInnings
+                )
+            }
+
+            if (result.isTie && (current.matchType == MatchType.WORLD_CUP_SEMI_FINAL || current.matchType == MatchType.WORLD_CUP_FINAL)) {
+                commentaryEngine.onSuperOverTriggered(playAudio = true)
+            } else {
+                commentaryEngine.onMatchCompleted(result, current.playerTeam, playAudio = true)
+            }
+        } else {
+            commentaryEngine.onBallResult(
+                innings = updatedInnings,
+                batsmanChoice = batsmanChoice,
+                bowlerChoice = bowlerChoice,
+                isWicket = isWicket,
+                runsScored = runs,
+                matchFormat = current.format,
+                matchType = current.matchType,
+                isUserBatting = isUserBatting
+            )
+        }
 
         // Check if innings just completed
         if (updatedInnings.isCompleted) {
@@ -386,6 +452,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun startSuperOver(match: ActiveMatchState) {
+        commentaryEngine.onSuperOverTriggered()
         val battingFirst = match.innings1?.battingTeam ?: match.playerTeam
         val bowlingFirst = match.innings1?.bowlingTeam ?: match.opponentTeam
 
@@ -399,6 +466,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun finishMatch(match: ActiveMatchState, result: MatchResult) {
         playSound(SoundType.MATCH_WIN)
+        commentaryEngine.onMatchCompleted(result, match.playerTeam, playAudio = false)
         gameRepository.saveMatchResult(result)
 
         if (match.matchType.name.startsWith("WORLD_CUP")) {
@@ -534,11 +602,18 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateSettings(settings: GameSettings) {
         playSound(SoundType.BUTTON_CLICK)
+        commentaryEngine.applySettings(settings)
         gameRepository.updateSettings(settings)
+    }
+
+    fun setCommentaryVoiceEnabled(enabled: Boolean) {
+        val current = settings.value
+        updateSettings(current.copy(commentaryVoiceEnabled = enabled))
     }
 
     override fun onCleared() {
         super.onCleared()
         soundManager.release()
+        commentaryEngine.shutdown()
     }
 }

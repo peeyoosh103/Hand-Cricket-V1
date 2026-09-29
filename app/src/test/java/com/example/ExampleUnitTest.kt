@@ -386,4 +386,103 @@ class ExampleUnitTest {
         val completedCount = afterTournament.fixtures.count { it.status == FixtureStatus.COMPLETED }
         assertEquals(48, completedCount)
     }
+
+    @Test
+    fun testCommentaryEngine_BallEventsDispatchCorrectHindiLines() {
+        val appContext = ApplicationProvider.getApplicationContext<Context>()
+        val commentaryEngine = com.example.domain.commentary.HindiCommentaryEngine(appContext)
+
+        // 1 Run
+        var inn = engine.createFirstInnings(india, australia, MatchFormat.FIVE_OVERS)
+        inn = engine.processBall(inn, 1, 2)
+        commentaryEngine.onBallResult(inn, 1, 2, false, 1, MatchFormat.FIVE_OVERS, MatchType.QUICK_MATCH, true, playAudio = false)
+
+        val output1 = commentaryEngine.currentCommentary.value
+        assertNotNull(output1)
+        assertTrue(output1!!.lines.isNotEmpty())
+        assertTrue("Commentary text should contain Hindi", output1.summaryText.any { it in '\u0900'..'\u097F' })
+        assertFalse("Template tokens should be replaced", output1.summaryText.contains("{battingTeamName}"))
+
+        // Four (Boundary)
+        inn = engine.processBall(inn, 4, 2)
+        commentaryEngine.onBallResult(inn, 4, 2, false, 4, MatchFormat.FIVE_OVERS, MatchType.QUICK_MATCH, true, playAudio = false)
+        val output4 = commentaryEngine.currentCommentary.value
+        assertNotNull(output4)
+        assertTrue("Should have boundary four or consecutive boundary event",
+            output4!!.eventType == com.example.domain.commentary.CommentaryEventType.BOUNDARY_FOUR ||
+            output4.eventType == com.example.domain.commentary.CommentaryEventType.CONSECUTIVE_FOURS)
+
+        // Six (Maximum)
+        inn = engine.processBall(inn, 6, 1)
+        commentaryEngine.onBallResult(inn, 6, 1, false, 6, MatchFormat.FIVE_OVERS, MatchType.QUICK_MATCH, true, playAudio = false)
+        val output6 = commentaryEngine.currentCommentary.value
+        assertNotNull(output6)
+        assertTrue(output6!!.summaryText.any { it in '\u0900'..'\u097F' })
+
+        // Wicket
+        inn = engine.processBall(inn, 3, 3)
+        commentaryEngine.onBallResult(inn, 3, 3, true, 0, MatchFormat.FIVE_OVERS, MatchType.QUICK_MATCH, true, playAudio = false)
+        val outputWkt = commentaryEngine.currentCommentary.value
+        assertNotNull(outputWkt)
+        assertTrue(outputWkt!!.eventType == com.example.domain.commentary.CommentaryEventType.WICKET ||
+                outputWkt.eventType == com.example.domain.commentary.CommentaryEventType.CONSECUTIVE_WICKETS)
+    }
+
+    @Test
+    fun testCommentaryEngine_TossAndChampionCelebration() {
+        val appContext = ApplicationProvider.getApplicationContext<Context>()
+        val commentaryEngine = com.example.domain.commentary.HindiCommentaryEngine(appContext)
+
+        // Toss
+        commentaryEngine.onToss(india, TossChoice.BAT, india, australia)
+        val tossOutput = commentaryEngine.currentCommentary.value
+        assertNotNull(tossOutput)
+        assertEquals(com.example.domain.commentary.CommentaryEventType.TOSS, tossOutput!!.eventType)
+        assertTrue(tossOutput.summaryText.contains("भारत") || tossOutput.summaryText.contains("बल्लेबाज़ी") || tossOutput.summaryText.contains("टॉस"))
+
+        // World Cup Final win
+        val dummyInnings1 = InningsState(1, india, australia, 5, 3, runs = 45, wickets = 2, isCompleted = true)
+        val dummyInnings2 = InningsState(2, australia, india, 5, 3, runs = 30, wickets = 3, isCompleted = true)
+        val finalResult = MatchResult(
+            matchId = "WC-FINAL",
+            matchType = MatchType.WORLD_CUP_FINAL,
+            format = MatchFormat.FIVE_OVERS,
+            team1 = india,
+            team2 = australia,
+            winner = india,
+            isTie = false,
+            marginText = "India won by 15 runs",
+            playerOfTheMatch = "Virat Kohli",
+            innings1 = dummyInnings1,
+            innings2 = dummyInnings2
+        )
+
+        commentaryEngine.onMatchCompleted(finalResult, india, playAudio = false)
+        val champOutput = commentaryEngine.currentCommentary.value
+        assertNotNull(champOutput)
+        assertEquals(com.example.domain.commentary.CommentaryEventType.CHAMPION, champOutput!!.eventType)
+        assertTrue(champOutput.summaryText.any { it in '\u0900'..'\u097F' })
+    }
+
+    @Test
+    fun testCommentaryEngine_ConversationManager_PreventsImmediateRepetition() {
+        val manager = com.example.domain.commentary.CommentaryConversationManager()
+        val ctx = com.example.domain.commentary.CommentaryContext(
+            battingTeamName = "भारत",
+            bowlingTeamName = "ऑस्ट्रेलिया",
+            runsScored = 4
+        )
+
+        val selectedTexts = mutableListOf<String>()
+        for (i in 1..15) {
+            val lines = manager.selectCommentary(com.example.domain.commentary.CommentaryEventType.BOUNDARY_FOUR, ctx)
+            val fullText = lines.joinToString(" ") { it.text }
+            selectedTexts.add(fullText)
+        }
+
+        // Verify that there are multiple diverse lines selected and not the exact same line repeating 15 times
+        val uniqueLines = selectedTexts.toSet()
+        assertTrue("Expected at least 5 different boundary four dialogue variations across 15 balls, got ${uniqueLines.size}", uniqueLines.size >= 5)
+    }
 }
+
